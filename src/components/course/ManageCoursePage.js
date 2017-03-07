@@ -17,6 +17,15 @@ class ManageCoursePage extends React.Component {
         };
 
         this.updateCourseState = this.updateCourseState.bind(this);
+        this.saveCourse = this.saveCourse.bind(this);
+    }
+
+    componentWillReceiveProps(newProps) {
+        if (this.props.course.id !== newProps.course.id) {
+            this.setState({
+                course: Object.assign({}, newProps.course)
+            });
+        }
     }
 
     updateCourseState(event) {
@@ -26,12 +35,18 @@ class ManageCoursePage extends React.Component {
         return this.setState({ course: course });
     }
 
+    saveCourse(event) {
+        event.preventDefault();
+        this.props.actions.saveCourse(this.state.course);
+        this.context.router.push("/courses");
+    }
+
     render() {
         return (
             <CourseForm
                 course={this.state.course}
                 allAuthors={this.props.authors}
-                onSave={this.state.onSave}
+                onSave={this.saveCourse}
                 onChange={this.updateCourseState}
                 loading={this.state.loading}
                 errors={this.state.errors} />
@@ -41,7 +56,12 @@ class ManageCoursePage extends React.Component {
 
 ManageCoursePage.propTypes = {
     course: PropTypes.object.isRequired,
-    authors: PropTypes.array.isRequired
+    authors: PropTypes.array.isRequired,
+    actions: PropTypes.object.isRequired
+};
+
+ManageCoursePage.contextTypes = {
+    router: PropTypes.object
 };
 
 function getCourseById(allCourses, id) {
@@ -49,7 +69,7 @@ function getCourseById(allCourses, id) {
         return course.id === id;
     });
 
-    if(matchingCourses.length){
+    if (matchingCourses.length) {
         return matchingCourses[0];
     }
 
@@ -58,7 +78,18 @@ function getCourseById(allCourses, id) {
 
 function mapStateToProps(state, ownProps) {
     const courseId = ownProps.params.id;
-    let course = getCourseById(state.courses, courseId);    
+    let course = {
+        id: "",
+        watchHref: "",
+        title: "",
+        authorId: "",
+        category: "",
+        length: ""
+    };
+
+    if (courseId && state.courses.length > 0) {
+        course = getCourseById(state.courses, courseId);
+    }
 
     const formattedAuthors = state.authors.map((author) => {
         return {
