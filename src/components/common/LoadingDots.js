@@ -7,11 +7,13 @@ class LoadingDots extends React.Component {
         this.state = { frame: 1 };
     }
 
-    componentDidMount() {       
-        this.interval = setInterval(() => {  
-            this.setState({ //eslint-disable-line react/no-did-mount-set-state
-                frame: this.state.frame + 1
-            });
+    componentDidMount() {
+        this.interval = setInterval(() => {
+            if (this.refs.loadingRef) {
+                this.setState({ //eslint-disable-line react/no-did-mount-set-state
+                    frame: this.state.frame + 1
+                });
+            }
         }, this.props.interval);
     }
 
@@ -28,7 +30,7 @@ class LoadingDots extends React.Component {
             dots--;
         }
 
-        return <span {...this.props}>{text}&nbsp;</span>;
+        return <span ref="loadingRef" {...this.props}>{text}&nbsp;</span>;
     }
 }
 
